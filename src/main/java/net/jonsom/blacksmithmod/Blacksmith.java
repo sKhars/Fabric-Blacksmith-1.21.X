@@ -3,6 +3,7 @@ package net.jonsom.blacksmithmod;
 import net.fabricmc.api.ModInitializer;
 
 import net.jonsom.blacksmithmod.block.ModBlocks;
+import net.jonsom.blacksmithmod.block.entity.ModBlockEntities;
 import net.jonsom.blacksmithmod.item.ModItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,5 +16,6 @@ public class Blacksmith implements ModInitializer {
 	public void onInitialize() {
         ModItems.registerModItems();
         ModBlocks.registerModBlocks();
+        ModBlockEntities.registerBlockEntities();
 	}
 }
