@@ -1,6 +1,5 @@
 {
-  "block.blacksmithmod.steel_bar": "Steel Bar",
-  "item.blacksmithmod.forge_hammer": "Forge hammer",
+  "item.blacksmithmod.blacksmith_hammer": "Blacksmith Hammer",
 
-  "block.blacksmithmod.hematite_block": "Hematite Ore"
+  "block.blacksmithmod.steel_bar": "Steel Bar"
 }

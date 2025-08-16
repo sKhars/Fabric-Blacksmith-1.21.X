@@ -2,6 +2,7 @@ package net.jonsom.blacksmithmod.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.jonsom.blacksmithmod.block.entity.SteelBarBlockEntity;
+import net.jonsom.blacksmithmod.item.custom.HammerItem;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -44,21 +45,18 @@ public class SteelBar extends BlockWithEntity implements BlockEntityProvider {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient) { // Lógica sempre no servidor
+        // A verificação agora é feita aqui fora
+        if (!world.isClient && player.getMainHandStack().getItem() instanceof HammerItem) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
-            // Verifica se é a nossa entidade e se o jogador está usando a mão principal
             if (blockEntity instanceof SteelBarBlockEntity entity) {
-
-                // TODO: Adicionar verificação se o jogador segura um martelo
-
-                // Chama o método que deforma a barra, passando a posição exata do clique
+                // A lógica de deformação só acontece se o jogador estiver segurando o martelo
                 entity.deform(hit.getPos());
-
-                // Força a atualização do bloco no cliente para que o renderer seja chamado
                 world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
             }
+            return ActionResult.SUCCESS; // Ação bem-sucedida
         }
-        return ActionResult.SUCCESS;
+        // Se o jogador não estiver segurando um martelo, a ação "passa" e nada acontece.
+        return ActionResult.PASS;
     }
 }

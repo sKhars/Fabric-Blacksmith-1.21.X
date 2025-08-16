@@ -11,23 +11,24 @@ import org.jetbrains.annotations.Nullable;
 
 public class SteelBarBlockEntity extends BlockEntity implements RenderDataBlockEntity {
 
-    private final float[][] voxels = new float[10][3];
+    // CORRIGIDO: Array de 10x4
+    private final float[][] voxels = new float[10][4];
 
     public SteelBarBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.STEEL_BAR_BLOCK_ENTITY, pos, state);
         for (int x = 0; x < 10; x++) {
-            for (int z = 0; z < 3; z++) {
-                voxels[x][z] = 4.0f;
+            for (int z = 0; z < 4; z++) {
+                // MUDANÇA SUTIL: Um pouco abaixo do máximo para evitar bugs de renderização
+                voxels[x][z] = 3.0f;
             }
         }
     }
 
-    // --- Salvamento NBT ---
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.writeNbt(nbt, registryLookup);
         for (int x = 0; x < 10; x++) {
-            for (int z = 0; z < 3; z++) {
+            for (int z = 0; z < 4; z++) { // CORRIGIDO: Loop até 4
                 nbt.putFloat("voxel_" + x + "_" + z, voxels[x][z]);
             }
         }
@@ -37,7 +38,7 @@ public class SteelBarBlockEntity extends BlockEntity implements RenderDataBlockE
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
         for (int x = 0; x < 10; x++) {
-            for (int z = 0; z < 3; z++) {
+            for (int z = 0; z < 4; z++) { // CORRIGIDO: Loop até 4
                 if (nbt.contains("voxel_" + x + "_" + z)) {
                     voxels[x][z] = nbt.getFloat("voxel_" + x + "_" + z);
                 }
@@ -45,30 +46,42 @@ public class SteelBarBlockEntity extends BlockEntity implements RenderDataBlockE
         }
     }
 
-    // --- Render Data para o lado cliente ---
     @Override
     public @Nullable Object getRenderData() {
         return voxels;
     }
 
-    // --- Acesso interno ---
     public float[][] getVoxels() {
         return this.voxels;
     }
 
-    // --- Deformação com sincronização ---
+    // --- MÉTODO DEFORM TOTALMENTE NOVO E CORRIGIDO ---
     public void deform(Vec3d hitPos) {
+        // Posição relativa do clique dentro do bloco (0.0 a 1.0)
         double localX = hitPos.getX() - getPos().getX();
         double localZ = hitPos.getZ() - getPos().getZ();
 
-        int voxelX = (int) (localX * 10);
-        int voxelZ = (int) (localZ * 3);
+        // Constantes para o offset e tamanho da VoxelShape (em unidades de 1/16 de bloco)
+        final float OFFSET_X = 3.0f / 16.0f;
+        final float OFFSET_Z = 6.0f / 16.0f;
+        final float BAR_WIDTH_X = 10.0f / 16.0f;
+        final float BAR_WIDTH_Z = 4.0f / 16.0f;
 
-        if (voxelX >= 0 && voxelX < 10 && voxelZ >= 0 && voxelZ < 3) {
+        // Normaliza a posição do clique para o espaço da barra (de 0.0 a 1.0)
+        double normalizedX = (localX - OFFSET_X) / BAR_WIDTH_X;
+        double normalizedZ = (localZ - OFFSET_Z) / BAR_WIDTH_Z;
+
+        // Converte para coordenadas do array de voxels (0-9 para X, 0-3 para Z)
+        int voxelX = (int) (normalizedX * 10);
+        int voxelZ = (int) (normalizedZ * 4);
+
+        // Verifica se o clique foi dentro dos limites da barra
+        if (voxelX >= 0 && voxelX < 10 && voxelZ >= 0 && voxelZ < 4) {
             if (voxels[voxelX][voxelZ] > 1.0f) {
-                voxels[voxelX][voxelZ] -= 0.5f;
-                markDirty();
+                voxels[voxelX][voxelZ] -= 0.5f; // Deforma o voxel clicado
+                markDirty(); // Marca a entidade como "suja" para salvar
                 if (world != null && !world.isClient) {
+                    // Sincroniza as mudanças com o cliente
                     world.updateListeners(pos, getCachedState(), getCachedState(), 3);
                 }
             }

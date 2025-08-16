@@ -1,40 +1,40 @@
 {
-	"schemaVersion": 1,
-	"id": "blacksmithmod",
-	"version": "${version}",
-	"name": "Blacksmith",
-	"description": "A cool mod about forging :)",
-	"authors": [
-		"Carlos Geronazzo"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "MIT",
-	"icon": "assets/blacksmithmod/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"net.jonsom.blacksmithmod.Blacksmith"
-		],
-		"fabric-datagen": [
-			"net.jonsom.blacksmithmod.BlacksmithDataGenerator"
-		]
-	},
-	"mixins": [
-		"blacksmithmod.mixins.json"
-	],
+  "schemaVersion": 1,
+  "id": "blacksmithmod",
+  "version": "${version}",
+  "name": "Blacksmith",
+  "description": "A cool mod about forging :)",
+  "authors": [
+    "Carlos Geronazzo"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "MIT",
+  "icon": "assets/blacksmithmod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.jonsom.blacksmithmod.Blacksmith"
+    ],
     "client": [
       "net.jonsom.blacksmithmod.BlacksmithModClient"
     ],
-	"depends": {
-		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+    "fabric-datagen": [
+      "net.jonsom.blacksmithmod.BlacksmithDataGenerator"
+    ]
+  },
+  "mixins": [
+    "blacksmithmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }

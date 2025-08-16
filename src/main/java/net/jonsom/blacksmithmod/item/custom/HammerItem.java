@@ -1,4 +1,10 @@
+
 package net.jonsom.blacksmithmod.item.custom;
 
-public class HammerItem {
+import net.minecraft.item.Item;
+
+public class HammerItem extends Item {
+    public HammerItem(Settings settings) {
+        super(settings);
+    }
 }
