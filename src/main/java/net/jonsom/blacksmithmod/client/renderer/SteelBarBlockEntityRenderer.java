@@ -27,8 +27,11 @@ public class SteelBarBlockEntityRenderer implements BlockEntityRenderer<SteelBar
         World world = entity.getWorld();
         if (world == null) return;
 
-        Object renderData = entity.getRenderData();
-        if (!(renderData instanceof float[][] voxels)) return;
+        // --- ESTA É A PARTE QUE MUDOU ---
+        // Agora chamamos o método getVoxels() diretamente.
+        float[][] voxels = entity.getVoxels();
+        if (voxels == null) return;
+        // --- FIM DA MUDANÇA ---
 
         VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getSolid());
         final int R = 255, G = 255, B = 255, A = 255;
@@ -52,8 +55,6 @@ public class SteelBarBlockEntityRenderer implements BlockEntityRenderer<SteelBar
 
                 float x1 = 0, y1 = 0, z1 = 0;
                 float x2 = VOXEL_SIZE, y2 = endY, z2 = VOXEL_SIZE;
-
-                // --- A MUDANÇA ESTÁ AQUI: .texture(0, 0) FOI ADICIONADO A TODAS AS LINHAS ---
 
                 // Face de Trás (Z negativo)
                 buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
