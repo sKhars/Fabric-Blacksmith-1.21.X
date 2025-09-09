@@ -1,7 +1,7 @@
 package net.jonsom.blacksmithmod.client.renderer;
 
 import net.jonsom.blacksmithmod.block.entity.SteelBarBlockEntity;
-import net.jonsom.blacksmithmod.client.renderer.ModRenderLayers; // <-- Importação crucial
+import net.minecraft.client.render.RenderLayer; // Importação normal
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -30,7 +30,12 @@ public class SteelBarBlockEntityRenderer implements BlockEntityRenderer<SteelBar
         float[][] voxels = entity.getVoxels();
         if (voxels == null) return;
 
-        VertexConsumer buffer = vertexConsumers.getBuffer(ModRenderLayers.getSteelBarLayer());
+        // --- AQUI ESTÁ A MUDANÇA ---
+        // Usamos uma camada de renderização do próprio Minecraft, que é garantida para funcionar.
+        // Ela não usa iluminação do mundo, então o objeto ficará com uma cor sólida e brilhante.
+        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getDebugQuads());
+        // --- FIM DA MUDANÇA ---
+
         final int R = 160, G = 160, B = 160, A = 255;
 
         matrices.push();
@@ -53,36 +58,44 @@ public class SteelBarBlockEntityRenderer implements BlockEntityRenderer<SteelBar
                 float x1 = 0, y1 = 0, z1 = 0;
                 float x2 = VOXEL_SIZE, y2 = endY, z2 = VOXEL_SIZE;
 
-                // Usando a iluminação 'light' do ambiente
-                buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
-                buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
-                buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
-                buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
+                // Para o RenderLayer.getDebugQuads(), não precisamos passar luz ou normais.
+                // Apenas posição e cor.
 
-                buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
-                buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
-                buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
-                buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
+                // Face de Trás (Z negativo)
+                buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A);
 
-                buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
-                buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
-                buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
-                buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
+                // Face da Frente (Z positivo)
+                buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A);
 
-                buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
-                buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
-                buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
-                buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
+                // Face de Baixo (Y negativo)
+                buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A);
 
-                buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
-                buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
-                buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
-                buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
+                // Face de Cima (Y positivo)
+                buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A);
 
-                buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
-                buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
-                buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
-                buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
+                // Face da Esquerda (X negativo)
+                buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A);
+
+                // Face da Direita (X positivo)
+                buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A);
+                buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A);
 
                 matrices.pop();
             }
