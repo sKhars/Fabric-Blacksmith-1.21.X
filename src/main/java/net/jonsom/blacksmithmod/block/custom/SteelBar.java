@@ -16,7 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class SteelBar extends BlockWithEntity implements BlockEntityProvider {
 
-    private static final VoxelShape SHAPE = Block.createCuboidShape(3, 0, 6, 13, 3, 10);
+    // --- AQUI ESTÁ A CORREÇÃO ---
+    // Atualizamos a VoxelShape para corresponder à escala de 24.0f do renderer.
+    private static final VoxelShape SHAPE = Block.createCuboidShape(4.66, 0, 6.66, 11.33, 2, 9.33);
+    // --- FIM DA CORREÇÃO ---
 
     public SteelBar(Settings settings) {
         super(settings);
@@ -34,6 +37,7 @@ public class SteelBar extends BlockWithEntity implements BlockEntityProvider {
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
+        // MUITO IMPORTANTE: Mantenha como INVISIBLE para que apenas o nosso renderer apareça.
         return BlockRenderType.INVISIBLE;
     }
 
@@ -45,18 +49,15 @@ public class SteelBar extends BlockWithEntity implements BlockEntityProvider {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        // A verificação agora é feita aqui fora
         if (!world.isClient && player.getMainHandStack().getItem() instanceof HammerItem) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
             if (blockEntity instanceof SteelBarBlockEntity entity) {
-                // A lógica de deformação só acontece se o jogador estiver segurando o martelo
                 entity.deform(hit.getPos());
                 world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
             }
-            return ActionResult.SUCCESS; // Ação bem-sucedida
+            return ActionResult.SUCCESS;
         }
-        // Se o jogador não estiver segurando um martelo, a ação "passa" e nada acontece.
         return ActionResult.PASS;
     }
 }
