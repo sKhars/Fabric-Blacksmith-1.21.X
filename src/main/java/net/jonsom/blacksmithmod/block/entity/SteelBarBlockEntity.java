@@ -11,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-// Removemos RenderDataBlockEntity e usamos a forma padrão do Minecraft
 public class SteelBarBlockEntity extends BlockEntity {
 
     private final float[][] voxels = new float[10][4];
@@ -25,7 +24,6 @@ public class SteelBarBlockEntity extends BlockEntity {
         }
     }
 
-    // --- MÉTODOS DE SINCRONIZAÇÃO (A GRANDE MUDANÇA) ---
     @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
@@ -36,8 +34,6 @@ public class SteelBarBlockEntity extends BlockEntity {
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return createNbt(registryLookup);
     }
-    // --- FIM DOS MÉTODOS DE SINCRONIZAÇÃO ---
-
 
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
@@ -61,7 +57,6 @@ public class SteelBarBlockEntity extends BlockEntity {
         }
     }
 
-    // O RenderData não é mais necessário, mas o renderer precisa de um jeito de pegar os voxels.
     public float[][] getVoxels() {
         return this.voxels;
     }
@@ -78,17 +73,35 @@ public class SteelBarBlockEntity extends BlockEntity {
         double normalizedX = (localX - OFFSET_X) / BAR_WIDTH_X;
         double normalizedZ = (localZ - OFFSET_Z) / BAR_WIDTH_Z;
 
-        int voxelX = (int) (normalizedX * 10);
-        int voxelZ = (int) (normalizedZ * 4);
+        int centerX = (int) (normalizedX * 10);
+        int centerZ = (int) (normalizedZ * 4);
 
-        if (voxelX >= 0 && voxelX < 10 && voxelZ >= 0 && voxelZ < 4) {
-            if (voxels[voxelX][voxelZ] > 1.0f) {
-                voxels[voxelX][voxelZ] -= 0.5f;
-                markDirty(); // Marca para salvar
-                if (world != null && !world.isClient) {
-                    // Envia a atualização para o cliente
-                    world.updateListeners(pos, getCachedState(), getCachedState(), 3);
+        int impactRadius = 2;
+        float maxDeformation = 0.75f;
+        boolean anyVoxelChanged = false;
+
+        for (int x = centerX - impactRadius; x <= centerX + impactRadius; x++) {
+            for (int z = centerZ - impactRadius; z <= centerZ + impactRadius; z++) {
+                if (x >= 0 && x < 10 && z >= 0 && z < 4) {
+                    double distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
+                    if (distance <= impactRadius) {
+                        float deformation = maxDeformation * (float)(1.0 - distance / impactRadius);
+                        if (voxels[x][z] > 1.0f) {
+                            voxels[x][z] -= deformation;
+                            if (voxels[x][z] < 1.0f) {
+                                voxels[x][z] = 1.0f;
+                            }
+                            anyVoxelChanged = true;
+                        }
+                    }
                 }
+            }
+        }
+
+        if (anyVoxelChanged) {
+            markDirty();
+            if (world != null && !world.isClient) {
+                world.updateListeners(pos, getCachedState(), getCachedState(), 3);
             }
         }
     }

@@ -1,4 +1,6 @@
 {
-  "textures": {},
+  "textures": {
+    "particle": "minecraft:block/iron_block"
+  },
   "elements": []
 }

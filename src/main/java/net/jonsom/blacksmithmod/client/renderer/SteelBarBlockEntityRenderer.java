@@ -1,7 +1,7 @@
 package net.jonsom.blacksmithmod.client.renderer;
 
 import net.jonsom.blacksmithmod.block.entity.SteelBarBlockEntity;
-import net.minecraft.client.render.RenderLayer;
+import net.jonsom.blacksmithmod.client.renderer.ModRenderLayers; // <-- Importação crucial
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -27,14 +27,11 @@ public class SteelBarBlockEntityRenderer implements BlockEntityRenderer<SteelBar
         World world = entity.getWorld();
         if (world == null) return;
 
-        // --- ESTA É A PARTE QUE MUDOU ---
-        // Agora chamamos o método getVoxels() diretamente.
         float[][] voxels = entity.getVoxels();
         if (voxels == null) return;
-        // --- FIM DA MUDANÇA ---
 
-        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getSolid());
-        final int R = 255, G = 255, B = 255, A = 255;
+        VertexConsumer buffer = vertexConsumers.getBuffer(ModRenderLayers.getSteelBarLayer());
+        final int R = 160, G = 160, B = 160, A = 255;
 
         matrices.push();
         matrices.translate(3.0f * VOXEL_SIZE, 0.005f, 6.0f * VOXEL_SIZE);
@@ -56,37 +53,32 @@ public class SteelBarBlockEntityRenderer implements BlockEntityRenderer<SteelBar
                 float x1 = 0, y1 = 0, z1 = 0;
                 float x2 = VOXEL_SIZE, y2 = endY, z2 = VOXEL_SIZE;
 
-                // Face de Trás (Z negativo)
+                // Usando a iluminação 'light' do ambiente
                 buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
                 buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
                 buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
                 buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, -1f);
 
-                // Face da Frente (Z positivo)
                 buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
                 buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
                 buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
                 buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 0f, 1f);
 
-                // Face de Baixo (Y negativo)
                 buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
                 buffer.vertex(positionMatrix, x2, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
                 buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
                 buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, -1f, 0f);
 
-                // Face de Cima (Y positivo)
                 buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
                 buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
                 buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
                 buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 0f, 1f, 0f);
 
-                // Face da Esquerda (X negativo)
                 buffer.vertex(positionMatrix, x1, y1, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
                 buffer.vertex(positionMatrix, x1, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
                 buffer.vertex(positionMatrix, x1, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
                 buffer.vertex(positionMatrix, x1, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, -1f, 0f, 0f);
 
-                // Face da Direita (X positivo)
                 buffer.vertex(positionMatrix, x2, y2, z2).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
                 buffer.vertex(positionMatrix, x2, y2, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
                 buffer.vertex(positionMatrix, x2, y1, z1).color(R, G, B, A).texture(0, 0).light(light).overlay(overlay).normal(entry, 1f, 0f, 0f);
